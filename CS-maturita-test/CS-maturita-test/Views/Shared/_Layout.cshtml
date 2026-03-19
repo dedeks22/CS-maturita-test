@@ -43,6 +43,11 @@
                                     <button type="submit" class="btn btn-link nav-link text-dark border-0">Logout</button>
                                 </form>
                             </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="DeleteUser" method="post">
+                                    <button type="submit" class="btn btn-link nav-link text-danger border-0" onclick="return confirm('Opravdu smazat účet i všechny poznámky?');">Smazat účet</button>
+                                </form>
+                            </li>
                         }
                         else
                         {

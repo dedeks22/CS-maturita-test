@@ -1,6 +1,9 @@
+using CS_maturita_test.Data;
 using CS_maturita_test.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CS_maturita_test.Controllers
 {
@@ -8,11 +11,16 @@ namespace CS_maturita_test.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ApplicationDbContext _dbContext;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
+            ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _dbContext = dbContext;
         }
 
         [HttpGet]
@@ -81,6 +89,30 @@ namespace CS_maturita_test.Controllers
 
             ModelState.AddModelError(string.Empty, "Neplatný login pokus.");
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> DeleteUser()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var userNotes = await _dbContext.Notes.Where(n => n.UserId == user.Id).ToListAsync();
+            if (userNotes.Count > 0)
+            {
+                _dbContext.Notes.RemoveRange(userNotes);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            await _signInManager.SignOutAsync();
+            await _userManager.DeleteAsync(user);
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
