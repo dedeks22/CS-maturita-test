@@ -34,7 +34,8 @@ namespace CS_maturita_test.Controllers
             }
 
             var notes = await query
-                .OrderByDescending(n => n.Id)
+                .OrderByDescending(n => n.CreatedAt)
+                .ThenByDescending(n => n.Id)
                 .ToListAsync();
 
             ViewData["OnlyImportant"] = onlyImportant;
@@ -43,12 +44,18 @@ namespace CS_maturita_test.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(string content, bool isImportant)
+        public async Task<IActionResult> Add(string title, string content, bool isImportant)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
+            }
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                TempData["NoteError"] = "Nadpis poznámky nesmí být prázdný.";
+                return RedirectToAction(nameof(Index));
             }
 
             if (string.IsNullOrWhiteSpace(content))
@@ -59,9 +66,11 @@ namespace CS_maturita_test.Controllers
 
             var note = new Note
             {
+                Title = title.Trim(),
                 Content = content.Trim(),
                 UserId = userId,
-                IsImportant = isImportant
+                IsImportant = isImportant,
+                CreatedAt = DateTime.Now
             };
 
             _dbContext.Notes.Add(note);

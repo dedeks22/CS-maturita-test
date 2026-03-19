@@ -39,14 +39,32 @@ namespace CS_maturita_test
                 db.Database.ExecuteSqlRaw(@"
                     CREATE TABLE IF NOT EXISTS Notes (
                         Id INTEGER NOT NULL CONSTRAINT PK_Notes PRIMARY KEY AUTOINCREMENT,
+                        Title TEXT NOT NULL,
                         Content TEXT NOT NULL,
                         UserId TEXT NOT NULL,
-                        IsImportant INTEGER NOT NULL DEFAULT 0
+                        IsImportant INTEGER NOT NULL DEFAULT 0,
+                        CreatedAt TEXT NOT NULL
                     );");
 
                 try
                 {
                     db.Database.ExecuteSqlRaw("ALTER TABLE Notes ADD COLUMN IsImportant INTEGER NOT NULL DEFAULT 0;");
+                }
+                catch (SqliteException ex) when (ex.SqliteErrorCode == 1 && ex.Message.Contains("duplicate column name", StringComparison.OrdinalIgnoreCase))
+                {
+                }
+
+                try
+                {
+                    db.Database.ExecuteSqlRaw("ALTER TABLE Notes ADD COLUMN Title TEXT NOT NULL DEFAULT ''; ");
+                }
+                catch (SqliteException ex) when (ex.SqliteErrorCode == 1 && ex.Message.Contains("duplicate column name", StringComparison.OrdinalIgnoreCase))
+                {
+                }
+
+                try
+                {
+                    db.Database.ExecuteSqlRaw("ALTER TABLE Notes ADD COLUMN CreatedAt TEXT NOT NULL DEFAULT '2000-01-01 00:00:00';");
                 }
                 catch (SqliteException ex) when (ex.SqliteErrorCode == 1 && ex.Message.Contains("duplicate column name", StringComparison.OrdinalIgnoreCase))
                 {

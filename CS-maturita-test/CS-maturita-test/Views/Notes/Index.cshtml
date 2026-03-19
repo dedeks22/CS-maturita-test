@@ -24,6 +24,10 @@
 
 <form asp-action="Add" method="post" class="mb-4">
     <div class="mb-3">
+        <label for="title" class="form-label">Nadpis</label>
+        <input id="title" name="title" class="form-control" maxlength="150" />
+    </div>
+    <div class="mb-3">
         <label for="content" class="form-label">Nová poznámka</label>
         <textarea id="content" name="content" class="form-control" rows="3" maxlength="1000"></textarea>
     </div>
@@ -45,10 +49,12 @@ else
         {
             <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="me-3">
-                    <span>@note.Content</span>
+                    <div class="fw-bold">@note.Title</div>
+                    <div class="text-muted small">@note.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                    <div>@note.Content</div>
                     @if (note.IsImportant)
                     {
-                        <span class="badge text-bg-warning ms-2">Důležité</span>
+                        <span class="badge text-bg-warning mt-1">Důležité</span>
                     }
                 </div>
                 <div class="d-flex gap-2">
