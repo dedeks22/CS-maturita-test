@@ -1,6 +1,7 @@
 @model List<Note>
 @{
     ViewData["Title"] = "Moje poznámky";
+    var onlyImportant = (bool?)ViewData["OnlyImportant"] == true;
 }
 
 <h1>Moje poznámky</h1>
@@ -10,10 +11,25 @@
     <div class="alert alert-danger" role="alert">@noteError</div>
 }
 
+<div class="mb-3">
+    @if (onlyImportant)
+    {
+        <a asp-action="Index" class="btn btn-outline-secondary">Zobrazit všechny</a>
+    }
+    else
+    {
+        <a asp-action="Index" asp-route-onlyImportant="true" class="btn btn-outline-warning">Zobrazit jen důležité</a>
+    }
+</div>
+
 <form asp-action="Add" method="post" class="mb-4">
     <div class="mb-3">
         <label for="content" class="form-label">Nová poznámka</label>
         <textarea id="content" name="content" class="form-control" rows="3" maxlength="1000"></textarea>
+    </div>
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="isImportant" name="isImportant" value="true" />
+        <label class="form-check-label" for="isImportant">Důležitá poznámka</label>
     </div>
     <button type="submit" class="btn btn-primary">Přidat poznámku</button>
 </form>
@@ -28,11 +44,27 @@ else
         @foreach (var note in Model)
         {
             <li class="list-group-item d-flex justify-content-between align-items-start">
-                <span class="me-3">@note.Content</span>
-                <form asp-action="Delete" method="post">
-                    <input type="hidden" name="id" value="@note.Id" />
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Smazat</button>
-                </form>
+                <div class="me-3">
+                    <span>@note.Content</span>
+                    @if (note.IsImportant)
+                    {
+                        <span class="badge text-bg-warning ms-2">Důležité</span>
+                    }
+                </div>
+                <div class="d-flex gap-2">
+                    <form asp-action="ToggleImportant" method="post">
+                        <input type="hidden" name="id" value="@note.Id" />
+                        <input type="hidden" name="onlyImportant" value="@onlyImportant.ToString().ToLowerInvariant()" />
+                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                            @(note.IsImportant ? "Zrušit důležitost" : "Označit jako důležitou")
+                        </button>
+                    </form>
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" name="id" value="@note.Id" />
+                        <input type="hidden" name="onlyImportant" value="@onlyImportant.ToString().ToLowerInvariant()" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Smazat</button>
+                    </form>
+                </div>
             </li>
         }
     </ul>

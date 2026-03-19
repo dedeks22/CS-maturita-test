@@ -12,5 +12,7 @@ namespace CS_maturita_test.Models
 
         [Required]
         public string UserId { get; set; } = string.Empty;
+
+        public bool IsImportant { get; set; }
     }
 }

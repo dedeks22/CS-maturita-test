@@ -1,5 +1,6 @@
 using CS_maturita_test.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace CS_maturita_test
@@ -39,8 +40,17 @@ namespace CS_maturita_test
                     CREATE TABLE IF NOT EXISTS Notes (
                         Id INTEGER NOT NULL CONSTRAINT PK_Notes PRIMARY KEY AUTOINCREMENT,
                         Content TEXT NOT NULL,
-                        UserId TEXT NOT NULL
+                        UserId TEXT NOT NULL,
+                        IsImportant INTEGER NOT NULL DEFAULT 0
                     );");
+
+                try
+                {
+                    db.Database.ExecuteSqlRaw("ALTER TABLE Notes ADD COLUMN IsImportant INTEGER NOT NULL DEFAULT 0;");
+                }
+                catch (SqliteException ex) when (ex.SqliteErrorCode == 1 && ex.Message.Contains("duplicate column name", StringComparison.OrdinalIgnoreCase))
+                {
+                }
             }
 
             // Configure the HTTP request pipeline.

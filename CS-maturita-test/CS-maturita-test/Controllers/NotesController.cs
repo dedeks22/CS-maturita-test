@@ -18,7 +18,7 @@ namespace CS_maturita_test.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool onlyImportant = false)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId))
@@ -26,17 +26,24 @@ namespace CS_maturita_test.Controllers
                 return Challenge();
             }
 
-            var notes = await _dbContext.Notes
-                .Where(n => n.UserId == userId)
+            var query = _dbContext.Notes.Where(n => n.UserId == userId);
+
+            if (onlyImportant)
+            {
+                query = query.Where(n => n.IsImportant);
+            }
+
+            var notes = await query
                 .OrderByDescending(n => n.Id)
                 .ToListAsync();
 
+            ViewData["OnlyImportant"] = onlyImportant;
             return View(notes);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(string content)
+        public async Task<IActionResult> Add(string content, bool isImportant)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId))
@@ -53,7 +60,8 @@ namespace CS_maturita_test.Controllers
             var note = new Note
             {
                 Content = content.Trim(),
-                UserId = userId
+                UserId = userId,
+                IsImportant = isImportant
             };
 
             _dbContext.Notes.Add(note);
@@ -64,7 +72,31 @@ namespace CS_maturita_test.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> ToggleImportant(int id, bool onlyImportant = false)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            var note = await _dbContext.Notes
+                .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId);
+
+            if (note is null)
+            {
+                return NotFound();
+            }
+
+            note.IsImportant = !note.IsImportant;
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index), new { onlyImportant });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id, bool onlyImportant = false)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId))
@@ -83,7 +115,7 @@ namespace CS_maturita_test.Controllers
             _dbContext.Notes.Remove(note);
             await _dbContext.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { onlyImportant });
         }
     }
 }
