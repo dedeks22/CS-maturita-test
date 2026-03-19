@@ -1,0 +1,39 @@
+@model List<Note>
+@{
+    ViewData["Title"] = "Moje poznámky";
+}
+
+<h1>Moje poznámky</h1>
+
+@if (TempData["NoteError"] is string noteError)
+{
+    <div class="alert alert-danger" role="alert">@noteError</div>
+}
+
+<form asp-action="Add" method="post" class="mb-4">
+    <div class="mb-3">
+        <label for="content" class="form-label">Nová poznámka</label>
+        <textarea id="content" name="content" class="form-control" rows="3" maxlength="1000"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Přidat poznámku</button>
+</form>
+
+@if (!Model.Any())
+{
+    <p>Zatím nemáš žádné poznámky.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var note in Model)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <span class="me-3">@note.Content</span>
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" name="id" value="@note.Id" />
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Smazat</button>
+                </form>
+            </li>
+        }
+    </ul>
+}

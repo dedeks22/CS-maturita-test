@@ -35,6 +35,12 @@ namespace CS_maturita_test
             {
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 db.Database.EnsureCreated();
+                db.Database.ExecuteSqlRaw(@"
+                    CREATE TABLE IF NOT EXISTS Notes (
+                        Id INTEGER NOT NULL CONSTRAINT PK_Notes PRIMARY KEY AUTOINCREMENT,
+                        Content TEXT NOT NULL,
+                        UserId TEXT NOT NULL
+                    );");
             }
 
             // Configure the HTTP request pipeline.
