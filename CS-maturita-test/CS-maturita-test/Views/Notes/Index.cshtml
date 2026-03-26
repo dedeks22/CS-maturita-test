@@ -50,7 +50,7 @@ else
             <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="me-3">
                     <div class="fw-bold">@note.Title</div>
-                    <div class="text-muted small">@note.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                    <div class="text-muted small">@note.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
                     <div>@note.Content</div>
                     @if (note.IsImportant)
                     {

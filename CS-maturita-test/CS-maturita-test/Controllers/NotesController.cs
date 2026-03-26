@@ -70,7 +70,7 @@ namespace CS_maturita_test.Controllers
                 Content = content.Trim(),
                 UserId = userId,
                 IsImportant = isImportant,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             _dbContext.Notes.Add(note);
