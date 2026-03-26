@@ -417,3 +417,4 @@ FodyWeavers.xsd
 *.msm
 *.msp
 CS-maturita-test/CS-maturita-test/appsettings.json
+*.json
