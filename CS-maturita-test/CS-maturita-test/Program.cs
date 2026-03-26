@@ -91,6 +91,12 @@ namespace CS_maturita_test
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
+            var port = Environment.GetEnvironmentVariable("PORT");
+            if (!string.IsNullOrEmpty(port))
+            {
+                builder.WebHost.UseUrls($"http://*:{port}");
+            }
+
             app.Run();
         }
     }
